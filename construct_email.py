@@ -198,8 +198,7 @@ def send_email(
 
     msg = MIMEText(html, "html", "utf-8")
     msg["From"] = _format_addr("Github Action <%s>" % sender)
-    # Format multiple receivers for To header
-    msg["To"] = ", ".join([_format_addr("You <%s>" % r) for r in receiver])
+    msg["To"] = _format_addr("You <%s>" % receiver)
     today = datetime.datetime.now().strftime("%Y/%m/%d")
     msg["Subject"] = Header(f"Daily arXiv {today}", "utf-8").encode()
 
