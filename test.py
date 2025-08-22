@@ -20,20 +20,20 @@ def test_email_sending():
     smtp_server = os.getenv("SMTP_SERVER")
     smtp_port = os.getenv("SMTP_PORT")
     sender = os.getenv("SENDER")
-    receiver = os.getenv("RECEIVER")
+    receivers = str(os.getenv("RECEIVER")).split(",")
     sender_password = os.getenv("SENDER_PASSWORD")
     assert smtp_server is not None, "SMTP_SERVER is not set"
     assert smtp_port is not None, "SMTP_PORT is not set"
     assert sender is not None, "SENDER is not set"
-    assert receiver is not None, "RECEIVER is not set"
+    assert receivers is not None, "RECEIVER is not set"
     assert sender_password is not None, "SENDER_PASSWORD is not set"
 
-    if all([smtp_server, smtp_port, sender, receiver, sender_password]):
+    if all([smtp_server, smtp_port, sender, receivers, sender_password]):
         logger.info("Testing email sending...")
         try:
             send_email(
                 sender=sender,
-                receiver=receiver,
+                receivers=receivers,
                 password=sender_password,
                 smtp_server=smtp_server,
                 smtp_port=int(smtp_port),

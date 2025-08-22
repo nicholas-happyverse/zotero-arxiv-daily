@@ -8,7 +8,7 @@ load_dotenv(override=True)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from pyzotero import zotero
 from recommender import rerank_paper
-from construct_email import render_email, send_email
+from construct_email import render_email
 from tqdm import trange, tqdm
 from loguru import logger
 from gitignore_parser import parse_gitignore
@@ -87,7 +87,7 @@ def get_arxiv_paper(query: str, debug: bool = False) -> list[ArxivPaper]:
     return papers
 
 
-parser = argparse.ArgumentParser(description="Recommender system for academic papers")
+parser = argparse.ArgumentParser(description="Generate email HTML for academic papers")
 
 
 def add_argument(*args, **kwargs):
@@ -133,11 +133,6 @@ if __name__ == "__main__":
         default=100,
     )
     add_argument("--arxiv_query", type=str, help="Arxiv search query")
-    add_argument("--smtp_server", type=str, help="SMTP server")
-    add_argument("--smtp_port", type=int, help="SMTP port")
-    add_argument("--sender", type=str, help="Sender email address")
-    add_argument("--receiver", type=str, help="Receiver email address")
-    add_argument("--sender_password", type=str, help="Sender email password")
     add_argument(
         "--use_llm_api",
         type=bool,
@@ -168,6 +163,12 @@ if __name__ == "__main__":
         help="Language of TLDR",
         default="English",
     )
+    add_argument(
+        "--output_file",
+        type=str,
+        help="Output HTML file path",
+        default="email.html",
+    )
     parser.add_argument("--debug", action="store_true", help="Debug mode")
     args = parser.parse_args()
     assert (
@@ -190,11 +191,16 @@ if __name__ == "__main__":
         logger.info(f"Remaining {len(corpus)} papers after filtering.")
     logger.info("Retrieving Arxiv papers...")
     papers = get_arxiv_paper(args.arxiv_query, args.debug)
+    
     if len(papers) == 0:
         logger.info(
             "No new papers found. Yesterday maybe a holiday and no one submit their work :). If this is not the case, please check the ARXIV_QUERY."
         )
         if not args.send_empty:
+            # Create a file indicating no email should be sent
+            with open("no_email.flag", "w") as f:
+                f.write("NO_PAPERS")
+            logger.info("Created no_email.flag file - no email will be sent.")
             exit(0)
     else:
         logger.info("Reranking papers...")
@@ -213,17 +219,11 @@ if __name__ == "__main__":
             logger.info("Using Local LLM as global LLM.")
             set_global_llm(lang=args.language)
 
+    logger.info("Generating email HTML...")
     html = render_email(papers)
-    logger.info("Sending email...")
-    receivers = args.receiver.split(",")
-    send_email(
-        args.sender,
-        receivers,
-        args.sender_password,
-        args.smtp_server,
-        args.smtp_port,
-        html,
-    )
-    logger.success(
-        "Email sent successfully! If you don't receive the email, please check the configuration and the junk box."
-    )
+    
+    # Save HTML to file
+    with open(args.output_file, "w", encoding="utf-8") as f:
+        f.write(html)
+    
+    logger.success(f"Email HTML saved to {args.output_file}")

@@ -68,8 +68,8 @@ def get_block_html(
     arxiv_id: str,
     abstract: str,
     pdf_url: str,
-    code_url: str = None,
-    affiliations: str = None,
+    code_url: str | None = None,
+    affiliations: str | None = None,
 ):
     code = (
         f'<a href="{code_url}" style="display: inline-block; text-decoration: none; font-size: 14px; font-weight: bold; color: #fff; background-color: #5bc0de; padding: 8px 16px; border-radius: 4px; margin-left: 8px;">Code</a>'
@@ -186,7 +186,7 @@ def render_email(papers: list[ArxivPaper]):
 
 def send_email(
     sender: str,
-    receiver: str,
+    receivers: list[str] | str,
     password: str,
     smtp_server: str,
     smtp_port: int,
@@ -196,9 +196,14 @@ def send_email(
         name, addr = parseaddr(s)
         return formataddr((Header(name, "utf-8").encode(), addr))
 
+    # Convert single receiver to list for consistency
+    if isinstance(receivers, str):
+        receivers = [receivers]
+    
     msg = MIMEText(html, "html", "utf-8")
     msg["From"] = _format_addr("Github Action <%s>" % sender)
-    msg["To"] = _format_addr("You <%s>" % receiver)
+    # Format multiple receivers for To header
+    msg["To"] = ", ".join([_format_addr("You <%s>" % r) for r in receivers])
     today = datetime.datetime.now().strftime("%Y/%m/%d")
     msg["Subject"] = Header(f"Daily arXiv {today}", "utf-8").encode()
 
@@ -211,5 +216,5 @@ def send_email(
         server = smtplib.SMTP_SSL(smtp_server, smtp_port)
 
     server.login(sender, password)
-    server.sendmail(sender, [receiver], msg.as_string())
+    server.sendmail(sender, receivers, msg.as_string())
     server.quit()
