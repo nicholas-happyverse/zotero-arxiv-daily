@@ -31,14 +31,15 @@ def test_email_sending():
     if all([smtp_server, smtp_port, sender, receivers, sender_password]):
         logger.info("Testing email sending...")
         try:
-            send_email(
-                sender=sender,
-                receivers=receivers,
-                password=sender_password,
-                smtp_server=smtp_server,
-                smtp_port=int(smtp_port),
-                html=empty_html,
-            )
+            for receivee in receivers:
+                send_email(
+                    sender=sender,
+                    receiver=receivee,
+                    password=sender_password,
+                    smtp_server=smtp_server,
+                    smtp_port=int(smtp_port),
+                    html=empty_html,
+                )
             logger.success("Email sent successfully!")
         except Exception as e:
             logger.error(f"Failed to send email: {e}")
