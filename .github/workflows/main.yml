@@ -5,7 +5,7 @@ on:
     - cron: '0 16 * * *'
 
 jobs:
-  calculate-and-send:
+  generate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,6 +34,33 @@ jobs:
           LANGUAGE: ${{ vars.LANGUAGE }}
         run: |
           uv run generate_email.py
+
+      - name: Upload email artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: email-html
+          path: saved_email.html
+          retention-days: 1
+
+  send:
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.REPOSITORY }}
+          ref: ${{ vars.REF }}
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: '0.5.4'
+
+      - name: Download email artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: email-html
 
       - name: Send email
         env:

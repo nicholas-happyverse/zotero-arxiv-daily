@@ -4,6 +4,7 @@ import sys
 from dotenv import load_dotenv
 from construct_email import send_email
 from loguru import logger
+from tqdm import tqdm
 
 load_dotenv(override=True)
 
@@ -46,7 +47,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--debug", action="store_true", help="Debug mode")
     args = parser.parse_args()
-    
+
     if args.debug:
         logger.remove()
         logger.add(sys.stdout, level="DEBUG")
@@ -54,34 +55,36 @@ if __name__ == "__main__":
     else:
         logger.remove()
         logger.add(sys.stdout, level="INFO")
-    
+
     # Check if no_email.flag exists
     if os.path.exists("no_email.flag"):
         logger.info("no_email.flag found - skipping email send.")
         exit(0)
-    
+
     # Check if HTML file exists
     if not os.path.exists(args.input_file):
         logger.error(f"HTML file {args.input_file} not found!")
         exit(1)
-    
+
     # Read HTML from file
     logger.info(f"Reading HTML from {args.input_file}...")
     with open(args.input_file, "r", encoding="utf-8") as f:
         html = f.read()
-    
+
     # Parse receivers
-    receivers = args.receiver.split(",")
-    
+    receivers = str(args.receiver).split(",")
+
     logger.info(f"Sending email to {len(receivers)} recipient(s)...")
-    send_email(
-        args.sender,
-        receivers,
-        args.sender_password,
-        args.smtp_server,
-        args.smtp_port,
-        html,
-    )
+    for receivee in tqdm(receivers):
+        send_email(
+            args.sender,
+            receivee,
+            args.sender_password,
+            args.smtp_server,
+            args.smtp_port,
+            html,
+        )
     logger.success(
         "Email sent successfully! If you don't receive the email, please check the configuration and the junk box."
     )
+
