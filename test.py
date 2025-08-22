@@ -21,6 +21,7 @@ def test_email_sending():
     smtp_port = os.getenv("SMTP_PORT")
     sender = os.getenv("SENDER")
     receivers = str(os.getenv("RECEIVER")).split(",")
+    logger.info(f"Testing email sending to {receivers}...")
     sender_password = os.getenv("SENDER_PASSWORD")
     assert smtp_server is not None, "SMTP_SERVER is not set"
     assert smtp_port is not None, "SMTP_PORT is not set"
