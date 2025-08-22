@@ -178,7 +178,7 @@ def render_email(papers: list[ArxivPaper]):
                 affiliations,
             )
         )
-        time.sleep(0.1)
+        time.sleep(10)
 
     content = "<br>" + "</br><br>".join(parts) + "</br>"
     return framework.replace("__CONTENT__", content)
