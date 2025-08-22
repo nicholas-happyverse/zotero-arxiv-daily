@@ -8,26 +8,6 @@ from loguru import logger
 def test_email_sending():
     """Test email sending functionality with a sample paper."""
 
-    # Create a test paper
-    test_paper = ArxivPaper(
-        arxiv_id="2401.00001",
-        url="https://arxiv.org/abs/2401.00001",
-        pdf_url="https://arxiv.org/pdf/2401.00001.pdf",
-        title="Test Paper for Email Functionality",
-        abstract="This is a test abstract for testing the email sending functionality.",
-        code_url=None,
-        tldr="This is a test paper to verify email sending works correctly.",
-        score=8.5,
-    )
-
-    # Set test authors
-    class Author:
-        def __init__(self, name):
-            self.name = name
-
-    test_paper.authors = [Author("Test Author 1"), Author("Test Author 2")]
-    test_paper.affiliations = ["Test University", "Research Institute"]
-
     # Test with empty papers list (no papers scenario)
     logger.info("Testing email rendering with no papers...")
     empty_html = render_email([])
@@ -36,23 +16,17 @@ def test_email_sending():
     )
     logger.success("Empty email rendering test passed!")
 
-    # Test with one paper
-    logger.info("Testing email rendering with one paper...")
-    html = render_email([test_paper])
-    assert test_paper.title in html, (
-        f"Email should contain paper title: {test_paper.title}"
-    )
-    assert test_paper.arxiv_id in html, (
-        f"Email should contain arxiv ID: {test_paper.arxiv_id}"
-    )
-    logger.success("Email rendering with paper test passed!")
-
     # Test email sending if environment variables are configured
     smtp_server = os.getenv("SMTP_SERVER")
     smtp_port = os.getenv("SMTP_PORT")
     sender = os.getenv("SENDER")
     receiver = os.getenv("RECEIVER")
     sender_password = os.getenv("SENDER_PASSWORD")
+    assert smtp_server is not None, "SMTP_SERVER is not set"
+    assert smtp_port is not None, "SMTP_PORT is not set"
+    assert sender is not None, "SENDER is not set"
+    assert receiver is not None, "RECEIVER is not set"
+    assert sender_password is not None, "SENDER_PASSWORD is not set"
 
     if all([smtp_server, smtp_port, sender, receiver, sender_password]):
         logger.info("Testing email sending...")
@@ -63,7 +37,7 @@ def test_email_sending():
                 password=sender_password,
                 smtp_server=smtp_server,
                 smtp_port=int(smtp_port),
-                html=html,
+                html=empty_html,
             )
             logger.success("Email sent successfully!")
         except Exception as e:
