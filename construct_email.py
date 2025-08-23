@@ -5,6 +5,7 @@ from email.header import Header
 from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
 import smtplib
+from smtplib import SMTP_SSL
 import datetime
 import time
 from loguru import logger
@@ -200,13 +201,7 @@ def send_email(
     today = datetime.datetime.now().strftime("%Y/%m/%d")
     msg["Subject"] = Header(f"Daily arXiv {today}", "utf-8").encode()
 
-    try:
-        server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT)
-        server.starttls()
-    except Exception as e:
-        logger.warning(f"Failed to use TLS. {e}")
-        logger.warning(f"Try to use SSL.")
-        server = smtplib.SMTP_SSL(settings.SMTP_SERVER, settings.SMTP_PORT)
+    server = SMTP_SSL(settings.SMTP_SERVER, settings.SMTP_PORT)
     server.login(settings.SMTP_USERNAME or settings.SENDER, settings.SMTP_PASSWORD)
     server.sendmail(sender, receiver, msg.as_string())
     server.quit()

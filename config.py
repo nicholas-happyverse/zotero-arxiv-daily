@@ -1,9 +1,11 @@
 from pydantic import computed_field
 import os
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
+    model_config: SettingsConfigDict = SettingsConfigDict(env_file=".env")  # type: ignore
+
     ZOTERO_ID: str
     ZOTERO_KEY: str
     ARXIV_QUERY: str

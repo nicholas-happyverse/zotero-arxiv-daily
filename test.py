@@ -22,7 +22,11 @@ def test_email_sending():
         receiver=settings.RECEIVER,
         html=empty_html,
     )
-    logger.info("All tests completed successfully!")
+    logger.info(
+        "{} should be receiving an email from {} shortly!",
+        settings.RECEIVER,
+        settings.SENDER,
+    )
     return 0
 
 
