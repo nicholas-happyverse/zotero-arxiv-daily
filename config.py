@@ -12,10 +12,10 @@ class Config(BaseSettings):
     SENDER: str
     RECEIVER: str
     SMTP_PASSWORD: str
-    SMTP_USERNAME: str = ""
+    SMTP_USERNAME: str | None = None
     OPENAI_API_KEY: str = ""
     ZOTERO_IGNORE: str = ""
-    SEND_EMPTY: bool = False
+    SEND_EMPTY: bool = True
     MAX_PAPER_NUM: int = 100
     USE_LLM_API: bool = False
     OPENAI_API_BASE: str = "https://api.openai.com/v1"
