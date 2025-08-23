@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from construct_email import send_email
 from loguru import logger
 from tqdm import tqdm
+from config import settings
 
 load_dotenv(override=True)
 
@@ -48,7 +49,7 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true", help="Debug mode")
     args = parser.parse_args()
 
-    if args.debug:
+    if settings.DEBUG:
         logger.remove()
         logger.add(sys.stdout, level="DEBUG")
         logger.debug("Debug mode is on.")
@@ -72,16 +73,13 @@ if __name__ == "__main__":
         html = f.read()
 
     # Parse receivers
-    receivers = str(args.receiver).split(",")
+    receivers = str(settings.RECEIVER).split(",")
 
     logger.info(f"Sending email to {len(receivers)} recipient(s)...")
     for receivee in tqdm(receivers):
         send_email(
-            args.sender,
+            settings.SENDER,
             receivee,
-            args.sender_password,
-            args.smtp_server,
-            args.smtp_port,
             html,
         )
     logger.success(

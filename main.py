@@ -219,9 +219,6 @@ if __name__ == "__main__":
     send_email(
         args.sender,
         receivers,
-        args.sender_password,
-        args.smtp_server,
-        args.smtp_port,
         html,
     )
     logger.success(

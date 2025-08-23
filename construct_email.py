@@ -8,6 +8,7 @@ import smtplib
 import datetime
 import time
 from loguru import logger
+from config import settings
 
 framework = """
 <!DOCTYPE HTML>
@@ -187,9 +188,6 @@ def render_email(papers: list[ArxivPaper]):
 def send_email(
     sender: str,
     receiver: str,
-    password: str,
-    smtp_server: str,
-    smtp_port: int,
     html: str,
 ):
     def _format_addr(s):
@@ -203,13 +201,12 @@ def send_email(
     msg["Subject"] = Header(f"Daily arXiv {today}", "utf-8").encode()
 
     try:
-        server = smtplib.SMTP(smtp_server, smtp_port)
+        server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT)
         server.starttls()
     except Exception as e:
         logger.warning(f"Failed to use TLS. {e}")
         logger.warning(f"Try to use SSL.")
-        server = smtplib.SMTP_SSL(smtp_server, smtp_port)
-
-    server.login(sender, password)
+        server = smtplib.SMTP_SSL(settings.SMTP_SERVER, settings.SMTP_PORT)
+    server.login(settings.SMTP_USERNAME or settings.SENDER, settings.SMTP_PASSWORD)
     server.sendmail(sender, receiver, msg.as_string())
     server.quit()
