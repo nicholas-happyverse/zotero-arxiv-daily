@@ -191,17 +191,11 @@ if __name__ == "__main__":
         logger.info(f"Remaining {len(corpus)} papers after filtering.")
     logger.info("Retrieving Arxiv papers...")
     papers = get_arxiv_paper(args.arxiv_query, args.debug)
-    
+
     if len(papers) == 0:
         logger.info(
             "No new papers found. Yesterday maybe a holiday and no one submit their work :). If this is not the case, please check the ARXIV_QUERY."
         )
-        if not args.send_empty:
-            # Create a file indicating no email should be sent
-            with open("no_email.flag", "w") as f:
-                f.write("NO_PAPERS")
-            logger.info("Created no_email.flag file - no email will be sent.")
-            exit(0)
     else:
         logger.info("Reranking papers...")
         papers = rerank_paper(papers, corpus)
@@ -221,9 +215,10 @@ if __name__ == "__main__":
 
     logger.info("Generating email HTML...")
     html = render_email(papers)
-    
+
     # Save HTML to file
     with open(args.output_file, "w", encoding="utf-8") as f:
         f.write(html)
-    
+
     logger.success(f"Email HTML saved to {args.output_file}")
+
