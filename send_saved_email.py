@@ -72,11 +72,8 @@ if __name__ == "__main__":
     with open(args.input_file, "r", encoding="utf-8") as f:
         html = f.read()
 
-    # Parse receivers
-    receivers = str(settings.RECEIVER).split(",")
-
-    logger.info(f"Sending email to {len(receivers)} recipient(s)...")
-    for receivee in tqdm(receivers):
+    logger.info(f"Sending email to {len(settings.RECEIVERS)} recipient(s)...")
+    for receivee in tqdm(settings.RECEIVERS):
         send_email(
             settings.SENDER,
             receivee,
@@ -85,4 +82,3 @@ if __name__ == "__main__":
     logger.success(
         "Email sent successfully! If you don't receive the email, please check the configuration and the junk box."
     )
-

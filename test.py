@@ -4,6 +4,7 @@ from construct_email import render_email, send_email
 from paper import ArxivPaper
 from loguru import logger
 from config import settings
+from tqdm import tqdm
 
 
 def test_email_sending():
@@ -17,16 +18,17 @@ def test_email_sending():
     )
     logger.success("Empty email rendering test passed!")
 
-    send_email(
-        sender=settings.SENDER,
-        receiver=settings.RECEIVER,
-        html=empty_html,
-    )
-    logger.info(
-        "{} should be receiving an email from {} shortly!",
-        settings.RECEIVER,
-        settings.SENDER,
-    )
+    for receiver in tqdm(settings.RECEIVERS):
+        send_email(
+            sender=settings.SENDER,
+            receiver=receiver,
+            html=empty_html,
+        )
+        logger.info(
+            "{} should be receiving an email from {} shortly!",
+            receiver,
+            settings.SENDER,
+        )
     return 0
 
 

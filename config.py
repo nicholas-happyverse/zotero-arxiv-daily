@@ -1,10 +1,12 @@
-from pydantic import computed_field
+from pydantic import computed_field, field_validator
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
-    model_config: SettingsConfigDict = SettingsConfigDict(env_file=".env")  # type: ignore
+    model_config: SettingsConfigDict = SettingsConfigDict(  # type: ignore
+        env_file=".env", enable_decoding=False, extra="allow"
+    )
 
     ZOTERO_ID: str
     ZOTERO_KEY: str
@@ -12,7 +14,14 @@ class Config(BaseSettings):
     SMTP_SERVER: str
     SMTP_PORT: int
     SENDER: str
-    RECEIVER: str
+    RECEIVERS: list[str]
+
+    @field_validator("RECEIVERS", mode="before")
+    def validate_receivers(cls, value: str) -> list[str]:
+        if not value:
+            raise ValueError("RECEIVERS cannot be empty")
+        return [x.strip() for x in value.split(",") if x.strip() != ""]
+
     SMTP_PASSWORD: str
     SMTP_USERNAME: str | None = None
     OPENAI_API_KEY: str = ""
