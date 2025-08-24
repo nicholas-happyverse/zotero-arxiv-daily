@@ -37,7 +37,6 @@ jobs:
           SENDER: ${{ secrets.SENDER }}
           RECEIVER: ${{ secrets.RECEIVER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          MAX_PAPER_NUM: 100
         run: |
           uv run generate_email.py
 
