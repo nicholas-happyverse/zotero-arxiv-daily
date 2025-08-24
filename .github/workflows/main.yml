@@ -35,6 +35,7 @@ jobs:
           SENDER: ${{ secrets.SENDER }}
           RECEIVERS: ${{ secrets.RECEIVER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          OUTPUT_FILE: saved_email.html
         run: |
           uv run generate_email.py
 
@@ -44,6 +45,7 @@ jobs:
           name: email-html
           path: saved_email.html
           retention-days: 1
+          if-no-files-found: error
 
   send:
     needs: generate
@@ -76,5 +78,6 @@ jobs:
           RECEIVERS: ${{ secrets.RECEIVER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          INPUT_FILE: saved_email.html
         run: |
           uv run send_saved_email.py
