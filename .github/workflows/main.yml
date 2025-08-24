@@ -32,6 +32,12 @@ jobs:
           OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
           MODEL_NAME: ${{ secrets.MODEL_NAME }}
           LANGUAGE: ${{ vars.LANGUAGE }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SENDER: ${{ secrets.SENDER }}
+          RECEIVER: ${{ secrets.RECEIVER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          MAX_PAPER_NUM: 100
         run: |
           uv run generate_email.py
 
@@ -64,6 +70,9 @@ jobs:
 
       - name: Send email
         env:
+          ZOTERO_ID: placeholder
+          ZOTERO_KEY: placeholder
+          ARXIV_QUERY: placeholder
           SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SENDER: ${{ secrets.SENDER }}
